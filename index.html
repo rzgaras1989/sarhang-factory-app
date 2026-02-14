@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>کارگەی سەرهەنگ</title>
+    <style>
+        :root { --ex-color: #ff4757; --in-color: #2ed573; --re-color: #ffa502; --del-color: #57606f; --dark: #1e222b; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; margin: 0; padding: 5px; user-select: none; }
+        .main-title { text-align: center; color: var(--dark); font-size: 14px; font-weight: 900; margin: 5px 0; padding: 8px; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .nav-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 10px; }
+        .tab-card { background: white; padding: 10px 2px; text-align: center; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 11px; color: #57606f; border: 1px solid #ddd; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .active-ex { background: var(--ex-color) !important; color: white !important; }
+        .active-in { background: var(--in-color) !important; color: white !important; }
+        .active-re { background: var(--re-color) !important; color: white !important; }
+        .active-del { background: var(--del-color) !important; color: white !important; }
+        .content-section { display: none; background: white; padding: 8px; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); }
+        .show { display: block; }
+        .selector-box { display: flex; gap: 8px; margin-bottom: 12px; }
+        select { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #ccc; font-weight: bold; font-size: 13px; background: #f8f9fa; text-align: center; }
+        table { width: 100%; border-collapse: collapse; background: white; table-layout: fixed; border: 1px solid #666; }
+        th, td { border: 1px solid #666; padding: 0; text-align: center; height: 18px; font-size: 11px; }
+        th { background: var(--dark); color: white; height: 22px; font-size: 10px; }
+        input { width: 100%; border: none; text-align: center; outline: none; font-size: 12px; height: 100%; font-weight: bold; background: transparent; }
+        .c-maml { background-color: #fff5f5; } .c-benz { background-color: #f5faff; } .c-amir { background-color: #f5fff5; } .c-krek { background-color: #fffdf5; } .c-qarz { background-color: #f9f5ff; } .c-hazr { background-color: #f5fff8; }
+        .col-day { width: 22px; background: #eee; font-weight: bold; }
+        .day-today { background: #ffeaa7 !important; border: 1.5px solid #f39c12 !important; }
+        .total-row { background: #dfe4ea; font-weight: 900; color: #2f3542; }
+        .report-item { padding: 12px; border-radius: 10px; border-right: 5px solid #ccc; margin-bottom: 8px; border: 1px solid #eee; border-right-width: 5px; }
+        .item-ex { background-color: #fff5f5; border-right-color: var(--ex-color); } 
+        .item-in { background-color: #f5fff8; border-right-color: var(--in-color); }
+        .profit-card { background: var(--dark); color: white; padding: 10px; border-radius: 12px; text-align: center; margin-top: 5px; }
+        .pass-container { text-align: center; padding: 20px; }
+        .pass-box { width: 140px; padding: 12px; font-size: 18px; text-align: center; border: 2px solid #ddd; border-radius: 12px; margin: 10px auto; display: block; background: #f1f2f6; letter-spacing: 4px; }
+        .btn-action { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; color: white; margin-top: 10px; }
+        .btn-blue { background: #0088cc; } .btn-gray { background: #4b6584; }
+
+        /* ئاگادارکردنەوەی ناچاری */
+        #backup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: none; align-items: center; justify-content: center; text-align: center; color: white; padding: 20px; }
+        .overlay-box { background: #fff; color: #333; padding: 25px; border-radius: 20px; box-shadow: 0 0 30px #ff4757; }
+        .overlay-box h2 { color: #ff4757; margin-bottom: 15px; }
+        .overlay-box p { font-size: 16px; font-weight: bold; line-height: 1.6; }
+        .pulse-btn { animation: pulse 1.5s infinite; background: #0088cc; color: white; border: none; padding: 15px 30px; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; margin-top: 20px; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <div id="backup-overlay">
+        <div class="overlay-box">
+            <h2>⚠️ ئاگاداری گرنگ</h2>
+            <p>بەڕێز سەرهەنگ، بۆ ئەوەی داتاکانت نەفەوتێت، تکایە باکئەپی ئەم مانگە بنێرە بۆ تێلیگرام.</p>
+            <p style="color: #666; font-size: 13px;">تێبینی: تاوەکو داتاکان نەنێریت، بەرنامەکە کار ناکات.</p>
+            <button class="pulse-btn" onclick="manualBackup(true)">📤 ئێستا باکئەپ بنێرە</button>
+        </div>
+    </div>
+
+    <div class="main-title">سیستمی بەڕێوەبردنی کارگەی چەو و لمی سەرهەنگ</div>
+
+    <div class="nav-tabs">
+        <div id="tab-ex" class="tab-card" onclick="switchSection('ex')"><i>💸</i>خەرجی</div>
+        <div id="tab-in" class="tab-card" onclick="switchSection('in')"><i>💰</i>داهات</div>
+        <div id="tab-re" class="tab-card" onclick="switchSection('re')"><i>📊</i>ڕاپۆرت</div>
+        <div id="tab-del" class="tab-card" onclick="switchSection('auth')"><i>🗑️</i>سڕینەوە</div>
+    </div>
+
+    <div id="sec-ex" class="content-section">
+        <div class="selector-box"><select id="m-ex" onchange="syncDate('ex')"></select><select id="y-ex" onchange="syncDate('ex')"></select></div>
+        <table>
+            <thead><tr><th style="width:22px">ڕ</th><th>معمل</th><th>بەنزین</th><th>ئامێر</th><th>کرێکار</th><th>قەرز</th></tr></thead>
+            <tbody id="ex-body"></tbody>
+            <tr class="total-row"><td>کۆ</td><td id="et1">0</td><td id="et2">0</td><td id="et3">0</td><td id="et4">0</td><td id="et5">0</td></tr>
+        </table>
+    </div>
+
+    <div id="sec-in" class="content-section">
+        <div class="selector-box"><select id="m-in" onchange="syncDate('in')"></select><select id="y-in" onchange="syncDate('in')"></select></div>
+        <table>
+            <thead><tr><th style="width:22px">ڕ</th><th>داهاتی حازر</th><th>داهاتی قەرز</th><th>کۆ</th></tr></thead>
+            <tbody id="in-body"></tbody>
+            <tr class="total-row"><td>کۆ</td><td id="it-h">0</td><td id="it-q">0</td><td id="it-total">0</td></tr>
+        </table>
+    </div>
+
+    <div id="sec-re" class="content-section">
+        <div class="selector-box"><select id="m-re" onchange="calcSpecificReport()"></select><select id="y-re" onchange="calcSpecificReport()"></select></div>
+        <div id="report-ui">
+            <div class="report-item item-ex">
+                <h4 style="color:var(--ex-color); margin:0 0 5px 0;">خەرجییەکان</h4>
+                <div style="display:flex; justify-content:space-between;"><span>حازر:</span><b id="r-ex-h">0</b></div>
+                <div style="display:flex; justify-content:space-between;"><span>قەرز:</span><b id="r-ex-q">0</b></div>
+                <div style="border-top:1px solid #ddd; margin-top:5px; padding-top:2px;"><b>کۆ: <span id="r-ex-t" style="float:left">0</span></b></div>
+            </div>
+            <div class="report-item item-in">
+                <h4 style="color:var(--in-color); margin:0 0 5px 0;">داهاتەکان</h4>
+                <div style="display:flex; justify-content:space-between;"><span>حازر:</span><b id="r-in-h">0</b></div>
+                <div style="display:flex; justify-content:space-between;"><span>قەرز:</span><b id="r-in-q">0</b></div>
+                <div style="border-top:1px solid #ddd; margin-top:5px; padding-top:2px;"><b>کۆ: <span id="r-in-t" style="float:left">0</span></b></div>
+            </div>
+            <div class="profit-card">داهاتی <span id="txt-m"></span>: <span id="r-profit" style="color:var(--in-color); font-size: 20px; display: block; font-weight:900;">0</span></div>
+            <div class="profit-card" style="background:#000; margin-top:8px;">داهاتی ساڵی <span id="txt-y"></span>: <span id="r-profit-year" style="color:#00ff88; font-size: 20px; display: block; font-weight:900;">0</span></div>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
+            <button class="btn-action btn-blue" onclick="manualBackup(false)">📤 ناردنی زانیاری</button>
+            <button class="btn-action btn-gray" onclick="document.getElementById('file-in').click()">📥 گەڕانەوەی زانیاری</button>
+        </div>
+        <input type="file" id="file-in" style="display:none" onchange="restoreData(event)">
+    </div>
+
+    <div id="sec-auth" class="content-section"><div class="pass-container"><h3>داواکردنی ڕێپێدان</h3><input type="password" id="main-pass" class="pass-box" inputmode="numeric" placeholder="****"><button class="btn-action btn-ok" style="background:var(--dark); color:white" onclick="handleAuth()">چوونە ژوورەوە</button></div></div>
+    <div id="sec-del" class="content-section"><div class="pass-container"><h3 style="color:var(--ex-color)">سڕینەوەی داتا</h3><div class="selector-box"><select id="m-del"></select><select id="y-del"></select></div><input type="password" id="confirm-pass" class="pass-box" inputmode="numeric" placeholder="****"><button class="btn-action" style="background:var(--ex-color); color:white" onclick="handleDelete()">🗑️ دڵنیام، بیسڕەوە</button></div></div>
+
+    <script>
+        const PASS = "246810"; let db;
+        const request = indexedDB.open("Sarhang_DB_Final", 1);
+        request.onsuccess = (e) => { db = e.target.result; initApp(); };
+        request.onupgradeneeded = (e) => { e.target.result.createObjectStore("monthlyData", { keyPath: "id" }); };
+
+        function initApp() {
+            const now = new Date();
+            // پشکنین بۆ یەکی مانگ
+            if(now.getDate() === 1) { document.getElementById('backup-overlay').style.display = 'flex'; }
+
+            const months = ["١","٢","٣","٤","٥","٦","٧","٨","٩","١٠","١١","١٢"];
+            ['m-ex','m-in','m-re','m-del'].forEach(id => {
+                months.forEach((m,i)=> document.getElementById(id).add(new Option("مانگی "+m, i+1, false, i===now.getMonth())));
+                if(id === 'm-re' || id === 'm-del') document.getElementById(id).add(new Option("هەموو مانگەکان", "all"));
+            });
+            ['y-ex','y-in','y-re','y-del'].forEach(id => { for(let y=2024; y<=2050; y++) document.getElementById(id).add(new Option("ساڵی "+y, y, false, y===now.getFullYear())); });
+            const exB = document.getElementById('ex-body'), inB = document.getElementById('in-body');
+            for(let i=1; i<=31; i++) {
+                let dSt = (i === now.getDate()) ? 'col-day day-today' : 'col-day';
+                exB.innerHTML += `<tr><td class="${dSt}">${i}</td><td class="c-maml"><input type="number" class="e-c1" oninput="saveData()"></td><td class="c-benz"><input type="number" class="e-c2" oninput="saveData()"></td><td class="c-amir"><input type="number" class="e-c3" oninput="saveData()"></td><td class="c-krek"><input type="number" class="e-c4" oninput="saveData()"></td><td class="c-qarz"><input type="number" class="e-c5" oninput="saveData()"></td></tr>`;
+                inB.innerHTML += `<tr><td class="${dSt}">${i}</td><td class="c-hazr"><input type="number" class="i-h" oninput="saveData()"></td><td class="c-qarz"><input type="number" class="i-q" oninput="saveData()"></td><td class="i-r-t" style="background:#f9f9f9">0</td></tr>`;
+            }
+            loadData(); switchSection('ex');
+        }
+
+        async function manualBackup(fromOverlay) {
+            const m = document.getElementById('m-re').value, y = document.getElementById('y-re').value;
+            const now = new Date();
+            const days = ["یەکشەممە", "دووشەممە", "سێشەممە", "چوارشەممە", "پێنجشەممە", "هەینی", "شەممە"];
+            const timestamp = `بەڕێز سەرهەنک ئەم داتایەت نارد لە ڕێکەوتی ${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} سەعات ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')} ڕۆژی ${days[now.getDay()]} ساڵی ${now.getFullYear()}`;
+            
+            db.transaction("monthlyData", "readonly").objectStore("monthlyData").getAll().onsuccess = async (e) => {
+                const blob = new Blob([JSON.stringify(e.target.result)], { type: 'application/json' });
+                const formData = new FormData();
+                formData.append('chat_id', '1043807827');
+                formData.append('document', blob, `Sarhang_Backup_${m}_${y}.json`);
+                formData.append('caption', timestamp);
+                try {
+                    await fetch(`https://api.telegram.org/bot8394229164:AAFG4dt0KgJCSFH2Ty86IP5UIiIeJEtUwAM/sendDocument`, { method: 'POST', body: formData });
+                    alert("نێردرا ✅");
+                    if(fromOverlay) document.getElementById('backup-overlay').style.display = 'none';
+                } catch(err) { alert("هەڵە لە ناردن! ئینتەرنێتەکەت بپشکنە."); }
+            };
+        }
+
+        function switchSection(type) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('show'));
+            document.querySelectorAll('.tab-card').forEach(t => t.classList.remove('active-ex', 'active-in', 'active-re', 'active-del'));
+            document.getElementById('sec-' + type).classList.add('show');
+            if(type !== 'auth' && type !== 'del') document.getElementById('tab-' + type).classList.add('active-' + type);
+            else document.getElementById('tab-del').classList.add('active-del');
+            if(type === 're') calcSpecificReport();
+        }
+
+        function handleAuth() { if(document.getElementById('main-pass').value === PASS) { switchSection('del'); document.getElementById('main-pass').value=''; } else alert("هەڵەیە!"); }
+        
+        function handleDelete() {
+            if(document.getElementById('confirm-pass').value === PASS) {
+                const mVal = document.getElementById('m-del').value, yVal = document.getElementById('y-del').value;
+                const store = db.transaction("monthlyData", "readwrite").objectStore("monthlyData");
+                if(mVal === "all") { for(let i=1; i<=12; i++) { store.delete(`data_${i}_${yVal}`); } alert("سڕایەوە."); }
+                else { store.delete(`data_${mVal}_${yVal}`).onsuccess = () => alert("سڕایەوە"); }
+                setTimeout(() => location.reload(), 500);
+            } else alert("هەڵەیە!");
+        }
+
+        function saveData() {
+            const m = document.getElementById('m-ex').value, y = document.getElementById('y-ex').value;
+            const vals = Array.from(document.querySelectorAll('input:not([type="password"]):not([type="file"])')).map(i=>i.value);
+            db.transaction("monthlyData", "readwrite").objectStore("monthlyData").put({ id: `data_${m}_${y}`, values: vals });
+            updateTotals();
+        }
+
+        function updateTotals() {
+            let ets = [0,0,0,0,0], ih=0, iq=0;
+            for(let c=1; c<=5; c++) {
+                document.querySelectorAll('.e-c'+c).forEach(i => ets[c-1] += Number(i.value)||0);
+                document.getElementById('et'+c).innerText = ets[c-1].toLocaleString();
+            }
+            document.querySelectorAll('#in-body tr').forEach(r => {
+                let h = Number(r.querySelector('.i-h').value)||0, q = Number(r.querySelector('.i-q').value)||0;
+                r.querySelector('.i-r-t').innerText = (h+q).toLocaleString();
+                ih+=h; iq+=q;
+            });
+            document.getElementById('it-h').innerText = ih.toLocaleString();
+            document.getElementById('it-q').innerText = iq.toLocaleString();
+            document.getElementById('it-total').innerText = (ih+iq).toLocaleString();
+        }
+
+        function loadData() {
+            const m = document.getElementById('m-ex').value, y = document.getElementById('y-ex').value;
+            db.transaction("monthlyData", "readonly").objectStore("monthlyData").get(`data_${m}_${y}`).onsuccess = (e) => {
+                const inps = document.querySelectorAll('input:not([type="password"]):not([type="file"])');
+                if (e.target.result) e.target.result.values.forEach((v, i) => { if(inps[i]) inps[i].value = v; });
+                else inps.forEach(i => i.value = "");
+                updateTotals();
+            };
+        }
+
+        function syncDate(from) {
+            const m = document.getElementById('m-'+from).value, y = document.getElementById('y-'+from).value;
+            ['ex','in','re','del'].forEach(t => { 
+                if(t !== 'del' || m !== 'all') { if (document.getElementById('m-'+t).querySelector(`option[value="${m}"]`)) document.getElementById('m-'+t).value = m; }
+                document.getElementById('y-'+t).value = y; 
+            });
+            loadData();
+        }
+
+        function calcSpecificReport() {
+            const m = document.getElementById('m-re').value, y = document.getElementById('y-re').value;
+            document.getElementById('txt-m').innerText = (m === "all") ? "هەموو مانگەکان" : "مانگی " + m;
+            document.getElementById('txt-y').innerText = y;
+            const store = db.transaction("monthlyData", "readonly").objectStore("monthlyData");
+            if(m === "all") {
+                store.getAll().onsuccess = (e) => {
+                    let hE=0, qE=0, hI=0, qI=0;
+                    e.target.result.forEach(item => { if (item.id.endsWith(`_${y}`)) {
+                        const d = item.values;
+                        for(let i=0; i<31; i++) { hE += (Number(d[i*5])||0)+(Number(d[i*5+1])||0)+(Number(d[i*5+2])||0)+(Number(d[i*5+3])||0); qE += (Number(d[i*5+4])||0); }
+                        const offset = 31 * 5;
+                        for(let i=0; i<31; i++) { hI += Number(d[offset + i*2])||0; qI += Number(d[offset + i*2 + 1])||0; }
+                    }}); showRep(hE, qE, hI, qI);
+                };
+            } else {
+                store.get(`data_${m}_${y}`).onsuccess = (e) => {
+                    let hE=0, qE=0, hI=0, qI=0;
+                    if(e.target.result) {
+                        const d = e.target.result.values;
+                        for(let i=0; i<31; i++) { hE += (Number(d[i*5])||0)+(Number(d[i*5+1])||0)+(Number(d[i*5+2])||0)+(Number(d[i*5+3])||0); qE += (Number(d[i*5+4])||0); }
+                        const offset = 31 * 5;
+                        for(let i=0; i<31; i++) { hI += Number(d[offset + i*2])||0; qI += Number(d[offset + i*2 + 1])||0; }
+                    } showRep(hE, qE, hI, qI);
+                };
+            }
+            let yProf = 0;
+            store.getAll().onsuccess = (e) => {
+                e.target.result.forEach(item => { if (item.id.endsWith(`_${y}`)) {
+                    let me=0, mi=0; const d = item.values;
+                    for(let i=0; i<31; i++) me += (Number(d[i*5])||0)+(Number(d[i*5+1])||0)+(Number(d[i*5+2])||0)+(Number(d[i*5+3])||0)+(Number(d[i*5+4])||0);
+                    const off = 31 * 5;
+                    for(let i=0; i<31; i++) mi += (Number(d[off + i*2])||0)+(Number(d[off + i*2 + 1])||0);
+                    yProf += (mi - me);
+                }}); document.getElementById('r-profit-year').innerText = yProf.toLocaleString();
+            };
+        }
+
+        function showRep(hE, qE, hI, qI) {
+            document.getElementById('r-ex-h').innerText = hE.toLocaleString();
+            document.getElementById('r-ex-q').innerText = qE.toLocaleString();
+            document.getElementById('r-ex-t').innerText = (hE+qE).toLocaleString();
+            document.getElementById('r-in-h').innerText = hI.toLocaleString();
+            document.getElementById('r-in-q').innerText = qI.toLocaleString();
+            document.getElementById('r-in-t').innerText = (hI+qI).toLocaleString();
+            document.getElementById('r-profit').innerText = (hI+qI - (hE+qE)).toLocaleString();
+        }
+
+        function restoreData(event) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = JSON.parse(e.target.result);
+                const tx = db.transaction("monthlyData", "readwrite");
+                data.forEach(item => tx.objectStore("monthlyData").put(item));
+                tx.oncomplete = () => { alert("گەڕێنرایەوە ✅"); location.reload(); };
+            }; reader.readAsText(event.target.files[0]);
+        }
+    </script>
+</body>
+</html>
