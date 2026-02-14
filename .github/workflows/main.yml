@@ -5,25 +5,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          
+
+      - name: Create Package File
+        run: |
+          echo '{
+            "name": "factory-system",
+            "version": "1.0.0",
+            "dependencies": {
+              "@capacitor/android": "^5.0.0",
+              "@capacitor/cli": "^5.0.0",
+              "@capacitor/core": "^5.0.0"
+            }
+          }' > package.json
+
       - name: Install Dependencies
         run: npm install
-        
-      - name: Add Android Platform
+
+      - name: Initialize Capacitor
+        run: npx cap init "سیستمی کارگە" "com.sarhang.factory" --web-dir .
+
+      - name: Add Android
         run: npx cap add android
-        
+
       - name: Build APK
         run: |
           npx cap copy
-          cd android && ./gradlew assembleDebug
-          
+          cd android && chmod +x gradlew && ./gradlew assembleDebug
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Factory-App-v1
+          name: Factory-App-Final
           path: android/app/build/outputs/apk/debug/app-debug.apk
